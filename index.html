@@ -21,7 +21,7 @@ button.alt{background:var(--g1);color:var(--ink)}button:disabled{opacity:.5}
 <button id="b-tutor">학습 튜터 (듣고 따라 말하기)</button><button class="alt" id="b-story">스토리 (폰에서 넘겨 보기)</button><button class="alt" id="b-pdf">한 장 요약 PDF</button></div>
 <script>
 (()=>{
-const SALT=Uint8Array.from(atob("uCum1yQ0LBOa42WIrHTzVw=="),c=>c.charCodeAt(0)), ITER=300000;
+const SALT=Uint8Array.from(atob("XVPk8rm0fmmRSk8uFHMBOw=="),c=>c.charCodeAt(0)), ITER=300000;
 const $=id=>document.getElementById(id); let KEY=null;
 async function dec(name){ const r=await fetch(name); if(!r.ok) throw new Error(name); const b=new Uint8Array(await r.arrayBuffer()); return crypto.subtle.decrypt({name:"AES-GCM",iv:b.slice(0,12)},KEY,b.slice(12)); }
 async function derive(pw){ const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]); return crypto.subtle.deriveKey({name:"PBKDF2",salt:SALT,iterations:ITER,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["decrypt"]); }
