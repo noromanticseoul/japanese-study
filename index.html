@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="robots" content="noindex"><title>일본어 6~8과</title>
+<style>
+:root{--bg:#F2F4F6;--card:#fff;--ink:#191F28;--g5:#6B7684;--g1:#F2F4F6;--a:#3182F6;--bad:#F04452}
+@media(prefers-color-scheme:dark){:root{--bg:#101013;--card:#1B1C21;--ink:#F2F4F6;--g5:#8B95A1;--g1:#24262C}}
+*{box-sizing:border-box;margin:0}
+body{min-height:100dvh;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Pretendard","Noto Sans KR",sans-serif;display:grid;place-items:center;padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left));-webkit-font-smoothing:antialiased}
+.box{width:100%;max-width:380px;background:var(--card);border-radius:24px;padding:32px 24px;box-shadow:0 6px 24px rgba(0,0,0,.08)}
+h1{font-size:24px;letter-spacing:-.02em;margin-bottom:6px}p{color:var(--g5);font-size:15px;line-height:1.5;margin-bottom:22px}
+input{width:100%;font-size:28px;letter-spacing:.4em;text-align:center;padding:14px;border-radius:14px;border:2px solid transparent;background:var(--g1);color:var(--ink);outline:none}
+input:focus{border-color:var(--a)}input.bad{border-color:var(--bad);animation:sh .3s}
+@keyframes sh{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+button{width:100%;margin-top:12px;font:inherit;font-size:17px;font-weight:700;padding:15px;border:0;border-radius:14px;background:var(--a);color:#fff;cursor:pointer}
+button.alt{background:var(--g1);color:var(--ink)}button:disabled{opacity:.5}
+.msg{min-height:20px;margin-top:10px;font-size:14px;color:var(--bad);text-align:center}
+#menu{display:none}
+</style></head><body>
+<div class="box" id="lock"><h1>일본어 6~8과</h1><p>접속 코드를 입력해 주세요.</p>
+<form id="f"><input id="pw" type="password" inputmode="numeric" autocomplete="off" maxlength="12" aria-label="접속 코드" autofocus><div class="msg" id="msg"></div><button id="go">열기</button></form></div>
+<div class="box" id="menu"><h1>어떤 걸 볼까요?</h1><p>6~8과 학습 자료예요.</p>
+<button id="b-tutor">학습 튜터 (듣고 따라 말하기)</button><button class="alt" id="b-story">스토리 (폰에서 넘겨 보기)</button><button class="alt" id="b-pdf">한 장 요약 PDF</button></div>
+<script>
+(()=>{
+const SALT=Uint8Array.from(atob("Dh7/yJz/klKSbe/eYJZ/Xg=="),c=>c.charCodeAt(0)), ITER=300000;
+const $=id=>document.getElementById(id); let KEY=null;
+async function dec(name){ const r=await fetch(name); if(!r.ok) throw new Error(name); const b=new Uint8Array(await r.arrayBuffer()); return crypto.subtle.decrypt({name:"AES-GCM",iv:b.slice(0,12)},KEY,b.slice(12)); }
+async function derive(pw){ const k=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]); return crypto.subtle.deriveKey({name:"PBKDF2",salt:SALT,iterations:ITER,hash:"SHA-256"},k,{name:"AES-GCM",length:256},false,["decrypt"]); }
+function show(){ $("lock").style.display="none"; $("menu").style.display="block"; }
+async function unlock(pw){ KEY=await derive(pw); const t=new TextDecoder().decode(await dec("check.bin")); if(t!=="ok-6-8") throw 0; try{sessionStorage.setItem("c68",pw)}catch(e){} }
+$("f").onsubmit=async e=>{ e.preventDefault(); $("go").disabled=true; $("msg").textContent="";
+  try{ await unlock($("pw").value); show(); }catch(err){ $("pw").classList.remove("bad"); void $("pw").offsetWidth; $("pw").classList.add("bad"); $("msg").textContent="코드가 맞지 않아요."; $("pw").select(); }
+  $("go").disabled=false; };
+async function open_(name){ const html=new TextDecoder().decode(await dec(name)); window.__fetchAudio=async f=>dec(f.replace(/\.mp3$/,".bin")); document.open(); document.write(html); document.close(); }
+$("b-tutor").onclick=()=>open_("tutor.bin"); $("b-story").onclick=()=>open_("story.bin");
+$("b-pdf").onclick=async()=>{ const u=URL.createObjectURL(new Blob([await dec("pdf.bin")],{type:"application/pdf"})); const a=document.createElement("a"); a.href=u; a.download="6~8과 한 장 요약.pdf"; a.click(); };
+(async()=>{ try{ const pw=sessionStorage.getItem("c68"); if(pw){ await unlock(pw); show(); } }catch(e){} })();
+})();
+</script></body></html>
